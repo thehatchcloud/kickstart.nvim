@@ -283,9 +283,7 @@ require('lazy').setup({
       },
     },
   },
-
-  -- Git integration with vim-fugitive
-  'tpope/vim-fugitive',
+  {'tpope/vim-fugitive'},
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
