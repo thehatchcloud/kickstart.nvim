@@ -104,6 +104,12 @@ vim.o.number = true
 --  Experiment for yourself to see if you like it!
 -- vim.o.relativenumber = true
 
+-- Set default indentation to 4 spaces
+vim.o.tabstop = 4
+vim.o.shiftwidth = 4
+vim.o.softtabstop = 4
+vim.o.expandtab = true
+
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
 
@@ -205,19 +211,30 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
--- [[ Basic Autocommands ]]
---  See `:help lua-guide-autocommands`
+  -- [[ Basic Autocommands ]]
+  --  See `:help lua-guide-autocommands`
 
--- Highlight when yanking (copying) text
---  Try it with `yap` in normal mode
---  See `:help vim.hl.on_yank()`
-vim.api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight when yanking (copying) text',
-  group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-  callback = function()
-    vim.hl.on_yank()
-  end,
-})
+  -- JSON indentation fix
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'json',
+    callback = function()
+      vim.opt_local.tabstop = 2
+      vim.opt_local.shiftwidth = 2
+      vim.opt_local.softtabstop = 2
+      vim.opt_local.expandtab = true
+    end,
+  })
+
+  -- Highlight when yanking (copying) text
+  --  Try it with `yap` in normal mode
+  --  See `:help vim.hl.on_yank()`
+  vim.api.nvim_create_autocmd('TextYankPost', {
+    desc = 'Highlight when yanking (copying) text',
+    group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
+    callback = function()
+      vim.hl.on_yank()
+    end,
+  })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -358,6 +375,8 @@ require('lazy').setup({
   -- you do for a plugin at the top level, you can do for a dependency.
   --
   -- Use the `dependencies` key to specify the dependencies of a particular plugin
+
+
 
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
@@ -673,36 +692,37 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
-      local servers = {
-        -- clangd = {},
-        gopls = {},
-        html = {},
-        cssls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
+       local servers = {
+         -- clangd = {},
+         gopls = {},
+         html = {},
+         cssls = {},
+         jsonls = {},
+         -- pyright = {},
+         -- rust_analyzer = {},
+         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
+         --
+         -- Some languages (like typescript) have entire language plugins that can be useful:
+         --    https://github.com/pmizio/typescript-tools.nvim
+         --
+         -- But for many setups, the LSP (`ts_ls`) will work just fine
+         ts_ls = {},
 
-        lua_ls = {
-          -- cmd = { ... },
-          -- filetypes = { ... },
-          -- capabilities = {},
-          settings = {
-            Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
-            },
-          },
-        },
-      }
+         lua_ls = {
+           -- cmd = { ... },
+           -- filetypes = { ... },
+           -- capabilities = {},
+           settings = {
+             Lua = {
+               completion = {
+                 callSnippet = 'Replace',
+               },
+               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+               -- diagnostics = { disable = { 'missing-fields' } },
+             },
+           },
+         },
+       }
 
       -- Ensure the servers and tools above are installed
       --
@@ -773,21 +793,22 @@ require('lazy').setup({
           }
         end
       end,
-      formatters_by_ft = {
-        lua = { 'stylua' },
-        go = { 'gofumpt', 'goimports' },
-        javascript = { 'prettierd', 'prettier', stop_after_first = true },
-        typescript = { 'prettierd', 'prettier', stop_after_first = true },
-        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-        html = { 'prettierd', 'prettier', stop_after_first = true },
-        css = { 'prettierd', 'prettier', stop_after_first = true },
-        scss = { 'prettierd', 'prettier', stop_after_first = true },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-      },
+       formatters_by_ft = {
+         lua = { 'stylua' },
+         go = { 'gofumpt', 'goimports' },
+         javascript = { 'prettierd', 'prettier', stop_after_first = true },
+         typescript = { 'prettierd', 'prettier', stop_after_first = true },
+         javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+         typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+         html = { 'prettierd', 'prettier', stop_after_first = true },
+         css = { 'prettierd', 'prettier', stop_after_first = true },
+         scss = { 'prettierd', 'prettier', stop_after_first = true },
+         json = { 'prettierd', 'prettier', stop_after_first = true },
+         -- Conform can also run multiple formatters sequentially
+         -- python = { "isort", "black" },
+         --
+         -- You can use 'stop_after_first' to run the first available formatter from the list
+       },
     },
   },
 
@@ -958,7 +979,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'css', 'diff', 'go', 'html', 'javascript', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'scss', 'tsx', 'typescript', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'css', 'diff', 'go', 'html', 'javascript', 'json', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'scss', 'tsx', 'typescript', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -990,7 +1011,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
